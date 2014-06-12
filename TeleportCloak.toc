@@ -1,0 +1,8 @@
+## Interface: 50400
+## Title: TeleportCloak
+## Notes: Automatically equip previous cloak after using a teleport cloak
+## Version: @project-version@
+## Author: Jordon
+## DefaultState: Enabled
+
+TeleportCloak.lua
