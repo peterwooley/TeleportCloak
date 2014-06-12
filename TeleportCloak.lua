@@ -37,18 +37,12 @@ TeleportCloak.PLAYER_ENTERING_WORLD = TeleportCloak.SaveCloak
 function TeleportCloak:RestoreCloak()
 	local cloak = GetInventoryItemID("player", INVSLOT_BACK)
 	if not cloak then return end
-	if event == "PLAYER_EQUIPMENT_CHANGED" or event == "PLAYER_ENTERING_WORLD" then
-		if not IsTeleportCloak(cloak) then
-			self.cloak = cloak
-		end
-	else
-		if cloak and IsTeleportCloak(cloak) then
-			if self.cloak then
-				--DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99TeleportCloak|r: " .. self.cloak)
-				EquipItemByName(self.cloak)
-			else
-				DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99TeleportCloak|r: |cffff0000WARNING|r: " .. GetItemInfo(cloak))
-			end
+	if IsTeleportCloak(cloak) then
+		if self.cloak and not InCombatLockdown() then
+			--DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99TeleportCloak|r: " .. self.cloak)
+			EquipItemByName(self.cloak)
+		else
+			DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99TeleportCloak|r: |cffff0000WARNING|r: " .. GetItemInfo(cloak))
 		end
 	end
 end
@@ -61,6 +55,7 @@ TeleportCloak.ZONE_CHANGED_NEW_AREA = TeleportCloak.RestoreCloak
 
 TeleportCloak:RegisterEvent("BAG_UPDATE")
 function TeleportCloak:BAG_UPDATE()
+	if InCombatLockdown() then return end
 	for i=1, #TeleportCloaks do
 		local startTime, _, enable = GetItemCooldown(TeleportCloaks[i])
 		if startTime == 0 and enable == 1 then
