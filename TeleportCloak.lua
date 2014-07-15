@@ -3,28 +3,39 @@
 
 local TeleportCloak = CreateFrame("Frame")
 TeleportCloak:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
-TeleportCloak.CloakButton = CreateFrame("Button", "TeleportCloak", UIParent, "SecureActionButtonTemplate")
-TeleportCloak.CloakButton:SetAttribute("type", "macro");
-TeleportCloak.RingButton = CreateFrame("Button", "TeleportRing", UIParent, "SecureActionButtonTemplate")
-TeleportCloak.RingButton:SetAttribute("type", "macro");
-TeleportCloak.TrinketButton = CreateFrame("Button", "TeleportTrinket", UIParent, "SecureActionButtonTemplate")
-TeleportCloak.TrinketButton:SetAttribute("type", "macro");
 
+local CloakButton = CreateFrame("Button", "TeleportCloak", UIParent, "SecureActionButtonTemplate")
+CloakButton:SetAttribute("type", "macro");
 
-local TeleportCloaks = {
-	65274, -- Cloak of Coordination (Horde)
-	65360, -- Cloak of Coordination (Alliance)
+local RingButton = CreateFrame("Button", "TeleportRing", UIParent, "SecureActionButtonTemplate")
+RingButton:SetAttribute("type", "macro");
+
+local TrinketButton = CreateFrame("Button", "TeleportTrinket", UIParent, "SecureActionButtonTemplate")
+TrinketButton:SetAttribute("type", "macro");
+
+local FeetButton = CreateFrame("Button", "TeleportFeet", UIParent, "SecureActionButtonTemplate")
+FeetButton:SetAttribute("type", "macro");
+
+local NeckButton = CreateFrame("Button", "TeleportNeck", UIParent, "SecureActionButtonTemplate")
+NeckButton:SetAttribute("type", "macro");
+
+local TabardButton = CreateFrame("Button", "TeleportTabard", UIParent, "SecureActionButtonTemplate")
+TabardButton:SetAttribute("type", "macro");
+
+local CloakList = {
 	63206, -- Wrap of Unity (Alliance)
 	63207, -- Wrap of Unity (Horde)
 	63352, -- Shroud of Cooperation (Alliance)
 	63353, -- Shroud of Cooperation (Horde)
+	65274, -- Cloak of Coordination (Horde)
+	65360, -- Cloak of Coordination (Alliance)
 }
 
-local TeleportTrinkets = {
+local TrinketList = {
 	103678, -- Time-Lost Artifact
 }
 
-local TeleportRings = {
+local RingList = {
 	40585, -- Signet of the Kirin Tor
 	40586, -- Band of the Kirin Tor
 	44934, -- Loop of the Kirin Tor
@@ -43,150 +54,100 @@ local TeleportRings = {
 	51560, -- Runed Band of the Kirin Tor
 }
 
-local function IsTeleportCloak(item)
-	for i=1, #TeleportCloaks do
-		if TeleportCloaks[i] == item then return true end
+local FeetList = {
+	50287, -- Boots of the Bay
+}
+
+local NeckList = {
+	32757, -- Blessed Medallion of Karabor
+}
+
+local TabardList = {
+	46874, -- Argent Crusader's Tabard
+}
+
+local function IsTeleportItem(item)
+	local list = {
+		CloakList,
+		TrinketList,
+		RingList,
+		FeetList,
+		NeckList,
+		TabardList,
+	}
+
+	for i=1, #list do
+		for j=1, #list[i] do
+			if list[i][j] == item then return true end
+		end
 	end
+	
 	return false
 end
 
-local function IsTeleportTrinket(item)
-	for i=1, #TeleportTrinkets do
-		if TeleportTrinkets[i] == item then return true end
+local Slots = {
+	INVSLOT_NECK,
+	INVSLOT_FEET,
+	INVSLOT_FINGER1,
+	INVSLOT_FINGER2,
+	INVSLOT_TRINKET1,
+	INVSLOT_TRINKET2,
+	INVSLOT_BACK,
+	INVSLOT_TABARD,
+}
+
+local Saved = {}
+
+local function SaveItems()
+	for i=1, #Slots do
+		local item = GetInventoryItemID("player", Slots[i])
+		if item and not IsTeleportItem(item) then
+			Saved[Slots[i]] = item
+		end
 	end
-	return false
-end
-
-local function IsTeleportRing(item)
-	for i=1, #TeleportRings do
-		if TeleportRings[i] == item then return true end
-	end
-	return false
-end
-
-function TeleportCloak:SaveItems()
-	local item
-	item = GetInventoryItemID("player", INVSLOT_BACK)
-	if item and not IsTeleportCloak(item) then
-		self.INVSLOT_BACK = item
-	end
-
-	item = GetInventoryItemID("player", INVSLOT_FINGER1)
-	if item and not IsTeleportRing(item) then
-		self.INVSLOT_FINGER1 = item
-	end
-
-	item = GetInventoryItemID("player", INVSLOT_FINGER2)
-	if item and not IsTeleportRing(item) then
-		self.INVSLOT_FINGER2 = item
-	end	
-
-	item = GetInventoryItemID("player", INVSLOT_TRINKET1)
-	if item and not IsTeleportTrinket(item) then
-		self.INVSLOT_TRINKET1 = item
-	end	
-
-	item = GetInventoryItemID("player", INVSLOT_TRINKET2)
-	if item and not IsTeleportTrinket(item) then
-		self.INVSLOT_TRINKET2 = item
-	end	
 end
 TeleportCloak:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
-TeleportCloak.PLAYER_EQUIPMENT_CHANGED = TeleportCloak.SaveItems
+TeleportCloak.PLAYER_EQUIPMENT_CHANGED = SaveItems
 TeleportCloak:RegisterEvent("PLAYER_ENTERING_WORLD")
-TeleportCloak.PLAYER_ENTERING_WORLD = TeleportCloak.SaveItems
+TeleportCloak.PLAYER_ENTERING_WORLD = SaveItems
 
-function TeleportCloak:RestoreItems()
-	local item
-	item = GetInventoryItemID("player", INVSLOT_BACK)
-	if item and IsTeleportCloak(item) then
-		if self.INVSLOT_BACK and not InCombatLockdown() then
-			EquipItemByName(self.INVSLOT_BACK)
-		else
-			DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99TeleportCloak|r: |cffff0000WARNING|r: " .. GetItemInfo(item))
-		end
-	end
-
-	item = GetInventoryItemID("player", INVSLOT_FINGER1)
-	if item and IsTeleportRing(item) then
-		if self.INVSLOT_FINGER1 and not InCombatLockdown() then
-			EquipItemByName(self.INVSLOT_FINGER1)
-		else
-			DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99TeleportRing|r: |cffff0000WARNING|r: " .. GetItemInfo(item))
-		end
-	end
-
-	item = GetInventoryItemID("player", INVSLOT_FINGER2)
-	if item and IsTeleportRing(item) then
-		if self.INVSLOT_FINGER2 and not InCombatLockdown() then
-			EquipItemByName(self.INVSLOT_FINGER2)
-		else
-			DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99TeleportRing|r: |cffff0000WARNING|r: " .. GetItemInfo(item))
-		end
-	end
-
-	item = GetInventoryItemID("player", INVSLOT_TRINKET1)
-	if item and IsTeleportTrinket(item) then
-		if self.INVSLOT_TRINKET1 and not InCombatLockdown() then
-			EquipItemByName(self.INVSLOT_TRINKET1)
-		else
-			DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99TeleportTrinket|r: |cffff0000WARNING|r: " .. GetItemInfo(item))
-		end
-	end
-
-	item = GetInventoryItemID("player", INVSLOT_TRINKET2)
-	if item and IsTeleportTrinket(item) then
-		if self.INVSLOT_TRINKET2 and not InCombatLockdown() then
-			EquipItemByName(self.INVSLOT_TRINKET2)
-		else
-			DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99TeleportTrinket|r: |cffff0000WARNING|r: " .. GetItemInfo(item))
+local function RestoreItems()
+	for i=1, #Slots do
+		local item = GetInventoryItemID("player", Slots[i])
+		if item and IsTeleportItem(item) then
+			if Saved[Slots[i]] and not InCombatLockdown() then
+				EquipItemByName(Saved[Slots[i]])
+			else
+				DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99TeleportCloak|r: |cffff0000WARNING|r: " .. GetItemInfo(item))
+			end
 		end
 	end
 end
 TeleportCloak:RegisterEvent("ZONE_CHANGED")
-TeleportCloak.ZONE_CHANGED = TeleportCloak.RestoreItems
+TeleportCloak.ZONE_CHANGED = RestoreItems
 TeleportCloak:RegisterEvent("ZONE_CHANGED_INDOORS")
-TeleportCloak.ZONE_CHANGED_INDOORS = TeleportCloak.RestoreItems
+TeleportCloak.ZONE_CHANGED_INDOORS = RestoreItems
 TeleportCloak:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-TeleportCloak.ZONE_CHANGED_NEW_AREA = TeleportCloak.RestoreItems
+TeleportCloak.ZONE_CHANGED_NEW_AREA = RestoreItems
 
-function TeleportCloak:UpdateCloakButton()
-	for i=1, #TeleportCloaks do
-		local startTime, _, enable = GetItemCooldown(TeleportCloaks[i])
+local function UpdateButton(button, list, slot)
+	for i=1, #list do
+		local startTime, _, enable = GetItemCooldown(list[i])
 		if startTime == 0 and enable == 1 then
-			self.CloakButton:SetAttribute("macrotext", "/equip item:" .. TeleportCloaks[i] .. "\n/use 15")
+			button:SetAttribute("macrotext", string.format("/equipslot %s item:%s\n/use %s", slot, list[i], slot))
 			return
 		end
 	end
-	self.CloakButton:SetAttribute("macrotext", "")
-end
-
-function TeleportCloak:UpdateRingButton()
-	for i=1, #TeleportRings do
-		local startTime, _, enable = GetItemCooldown(TeleportRings[i])
-		if startTime == 0 and enable == 1 then
-			self.RingButton:SetAttribute("macrotext", "/equipslot 11 item:" .. TeleportRings[i] .. "\n/use 11")
-			return
-		end
-	end
-	self.RingButton:SetAttribute("macrotext", "")
-end
-
-function TeleportCloak:UpdateTrinketButton()
-	for i=1, #TeleportTrinkets do
-		local startTime, _, enable = GetItemCooldown(TeleportTrinkets[i])
-		if startTime == 0 and enable == 1 then
-			self.TrinketButton:SetAttribute("macrotext", "/equipslot 13 item:" .. TeleportTrinkets[i] .. "\n/use 13")
-			return
-		end
-	end
-	self.TrinketButton:SetAttribute("macrotext", "")
+	button:SetAttribute("macrotext", "")
 end
 
 TeleportCloak:RegisterEvent("BAG_UPDATE")
 function TeleportCloak:BAG_UPDATE()
 	if InCombatLockdown() then return end
-	self:UpdateCloakButton()
-	self:UpdateRingButton()
-	self:UpdateTrinketButton()
+	UpdateButton(CloakButton, CloakList, INVSLOT_BACK)
+	UpdateButton(TrinketButton, TrinketList, INVSLOT_TRINKET1)
+	UpdateButton(RingButton, RingList, INVSLOT_FINGER1)
+	UpdateButton(FeetButton, FeetList, INVSLOT_FEET)
+	UpdateButton(NeckButton, NeckList, INVSLOT_NECK)
+	UpdateButton(TabardButton, TabardList, INVSLOT_TABARD)
 end
