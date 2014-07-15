@@ -25,7 +25,22 @@ local TeleportTrinkets = {
 }
 
 local TeleportRings = {
+	40585, -- Signet of the Kirin Tor
+	40586, -- Band of the Kirin Tor
+	44934, -- Loop of the Kirin Tor
 	44935, -- Ring of the Kirin Tor
+	45688, -- Inscribed Band of the Kirin Tor
+	45689, -- Inscribed Loop of the Kirin Tor
+	45690, -- Inscribed Ring of the Kirin Tor
+	45691, -- Inscribed Signet of the Kirin Tor
+	48954, -- Etched Band of the Kirin Tor
+	48955, -- Etched Loop of the Kirin Tor
+	48956, -- Etched Ring of the Kirin Tor
+	48957, -- Etched Signet of the Kirin Tor
+	51557, -- Runed Signet of the Kirin Tor
+	51558, -- Runed Loop of the Kirin Tor
+	51559, -- Runed Ring of the Kirin Tor
+	51560, -- Runed Band of the Kirin Tor
 }
 
 local function IsTeleportCloak(item)
