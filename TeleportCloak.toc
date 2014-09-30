@@ -3,6 +3,7 @@
 ## Notes: Automatically equip previous cloak after using a teleport cloak
 ## Version: @project-version@
 ## Author: Jordon
+## SavedVariables: TeleportCloakWarnings
 ## DefaultState: Enabled
 
 TeleportCloak.lua

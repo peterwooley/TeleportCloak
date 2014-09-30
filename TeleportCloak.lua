@@ -4,85 +4,120 @@
 local TeleportCloak = CreateFrame("Frame")
 TeleportCloak:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
 
-local CloakButton = CreateFrame("Button", "TeleportCloak", UIParent, "SecureActionButtonTemplate")
-CloakButton:SetAttribute("type", "macro");
-
-local RingButton = CreateFrame("Button", "TeleportRing", UIParent, "SecureActionButtonTemplate")
-RingButton:SetAttribute("type", "macro");
-
-local TrinketButton = CreateFrame("Button", "TeleportTrinket", UIParent, "SecureActionButtonTemplate")
-TrinketButton:SetAttribute("type", "macro");
-
-local FeetButton = CreateFrame("Button", "TeleportFeet", UIParent, "SecureActionButtonTemplate")
-FeetButton:SetAttribute("type", "macro");
-
-local NeckButton = CreateFrame("Button", "TeleportNeck", UIParent, "SecureActionButtonTemplate")
-NeckButton:SetAttribute("type", "macro");
-
-local TabardButton = CreateFrame("Button", "TeleportTabard", UIParent, "SecureActionButtonTemplate")
-TabardButton:SetAttribute("type", "macro");
-
-local CloakList = {
-	63206, -- Wrap of Unity (Alliance)
-	63207, -- Wrap of Unity (Horde)
-	63352, -- Shroud of Cooperation (Alliance)
-	63353, -- Shroud of Cooperation (Horde)
-	65274, -- Cloak of Coordination (Horde)
-	65360, -- Cloak of Coordination (Alliance)
+local List = {
+	Cloak = {
+		63206, -- Wrap of Unity (Alliance)
+		63207, -- Wrap of Unity (Horde)
+		63352, -- Shroud of Cooperation (Alliance)
+		63353, -- Shroud of Cooperation (Horde)
+		65274, -- Cloak of Coordination (Horde)
+		65360, -- Cloak of Coordination (Alliance)
+	},
+	Trinket = {
+		103678, -- Time-Lost Artifact
+		17691, -- Stormpike Insignia Rank 1
+		17900, -- Stormpike Insignia Rank 2
+		17901, -- Stormpike Insignia Rank 3
+		17902, -- Stormpike Insignia Rank 4
+		17903, -- Stormpike Insignia Rank 5
+		17904, -- Stormpike Insignia Rank 6
+		17690, -- Frostwolf Insignia Rank 1
+		17905, -- Frostwolf Insignia Rank 2
+		17906, -- Frostwolf Insignia Rank 3
+		17907, -- Frostwolf Insignia Rank 4
+		17908, -- Frostwolf Insignia Rank 5
+		17909, -- Frostwolf Insignia Rank 6
+	},
+	Ring = {
+		40585, -- Signet of the Kirin Tor
+		40586, -- Band of the Kirin Tor
+		44934, -- Loop of the Kirin Tor
+		44935, -- Ring of the Kirin Tor
+		45688, -- Inscribed Band of the Kirin Tor
+		45689, -- Inscribed Loop of the Kirin Tor
+		45690, -- Inscribed Ring of the Kirin Tor
+		45691, -- Inscribed Signet of the Kirin Tor
+		48954, -- Etched Band of the Kirin Tor
+		48955, -- Etched Loop of the Kirin Tor
+		48956, -- Etched Ring of the Kirin Tor
+		48957, -- Etched Signet of the Kirin Tor
+		51557, -- Runed Signet of the Kirin Tor
+		51558, -- Runed Loop of the Kirin Tor
+		51559, -- Runed Ring of the Kirin Tor
+		51560, -- Runed Band of the Kirin Tor
+		95050, -- Brassiest Knuckle (Horde)
+		95051, -- Brassiest Knuckle (Alliance)
+	},
+	Feet = {
+		50287, -- Boots of the Bay
+		28585, -- Ruby Slippers
+	},
+	Neck = {
+		32757, -- Blessed Medallion of Karabor
+	},
+	Tabard = {
+		46874, -- Argent Crusader's Tabard
+		63378, -- Hellscream's Reach Tabard
+		63379, -- Baradin's Wardens Tabard
+	}
 }
 
-local TrinketList = {
-	103678, -- Time-Lost Artifact
-}
-
-local RingList = {
-	40585, -- Signet of the Kirin Tor
-	40586, -- Band of the Kirin Tor
-	44934, -- Loop of the Kirin Tor
-	44935, -- Ring of the Kirin Tor
-	45688, -- Inscribed Band of the Kirin Tor
-	45689, -- Inscribed Loop of the Kirin Tor
-	45690, -- Inscribed Ring of the Kirin Tor
-	45691, -- Inscribed Signet of the Kirin Tor
-	48954, -- Etched Band of the Kirin Tor
-	48955, -- Etched Loop of the Kirin Tor
-	48956, -- Etched Ring of the Kirin Tor
-	48957, -- Etched Signet of the Kirin Tor
-	51557, -- Runed Signet of the Kirin Tor
-	51558, -- Runed Loop of the Kirin Tor
-	51559, -- Runed Ring of the Kirin Tor
-	51560, -- Runed Band of the Kirin Tor
-}
-
-local FeetList = {
-	50287, -- Boots of the Bay
-}
-
-local NeckList = {
-	32757, -- Blessed Medallion of Karabor
-}
-
-local TabardList = {
-	46874, -- Argent Crusader's Tabard
+local InventoryType = {
+	INVSLOT_NECK = INVSLOT_NECK,
+	INVSLOT_FEET = INVSLOT_FEET,
+	INVTYPE_FINGER = INVSLOT_FINGER1,
+	INVTYPE_TRINKET = INVSLOT_TRINKET1,
+	INVTYPE_CLOAK = INVSLOT_BACK,
+	INVTYPE_TABARD = INVSLOT_TABARD,
 }
 
 local function IsTeleportItem(item)
-	local list = {
-		CloakList,
-		TrinketList,
-		RingList,
-		FeetList,
-		NeckList,
-		TabardList,
-	}
-
-	for i=1, #list do
-		for j=1, #list[i] do
-			if list[i][j] == item then return true end
+	for slot,_ in pairs(List) do
+		for j=1, #List[slot] do
+			if List[slot][j] == item then return true end
 		end
 	end
-	
 	return false
+end
+
+local TeleportCloakList = {}
+
+TeleportCloakWarnings = TeleportCloakWarnings or true
+
+local CloakButton = CreateFrame("Button", "TeleportCloak", UIParent, "SecureActionButtonTemplate")
+CloakButton:SetAttribute("type", "macro");
+
+CloakButton:SetScript("PreClick", function(self)
+	if InCombatLockdown() then return end
+
+	local list
+	if #TeleportCloakList == 0 then
+		list = List.Cloak
+	else
+		list = TeleportCloakList
+	end
+
+	TeleportCloakList = {}
+
+	for i=1, #list do
+		local startTime, duration, enable = GetItemCooldown(list[i])
+		if (startTime == 0 or duration - (GetTime() - startTime) <= 30) and enable == 1 then
+			local slot = select(9, GetItemInfo(list[i]))
+			self:SetAttribute("macrotext", string.format("/equipslot %i item:%i\n/use %i", InventoryType[slot], list[i], InventoryType[slot]))
+			return
+		end
+	end
+	self:SetAttribute("macrotext", "")
+end)
+
+local function Print(msg, subTitle, skipTitle)
+	local title = "|cff33ff99TeleportCloak|r"
+	if subTitle then
+		if not skipTitle then DEFAULT_CHAT_FRAME:AddMessage(title) end
+		DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99" .. subTitle .. "|r: " .. msg)
+	else
+		DEFAULT_CHAT_FRAME:AddMessage(title .. ": " .. msg)
+	end
 end
 
 local Slots = {
@@ -95,6 +130,57 @@ local Slots = {
 	INVSLOT_BACK,
 	INVSLOT_TABARD,
 }
+
+SLASH_TeleportCloak1 = "/tc"
+SlashCmdList.TeleportCloak = function(msg)
+	local cmd = string.match(msg or "", "(%a+)") or ""
+	local arg = string.match(msg or "", "%a+ (.+)")
+
+	cmd = string.lower(cmd)
+
+	if cmd == "add" then
+		if arg then
+			local _, link, _,_,_,_,_,_, slot = GetItemInfo(arg)
+			if link then
+				-- Check inventory slots
+				for i=1, #Slots do
+					if GetInventoryItemLink("player", Slots[i]) == link then
+						local id = GetInventoryItemID("player", Slots[i])
+						if id and IsTeleportItem(id) then
+							table.insert(TeleportCloakList, id)
+							return
+						end
+					end
+				end
+
+				-- Find the item in our bags
+				for i = 1, NUM_BAG_SLOTS do
+					for j = 1, GetContainerNumSlots(i) do
+						local id = GetContainerItemID(i, j)
+						if id and IsTeleportItem(id) and (GetContainerItemLink(i, j) == link or GetInventoryItemLink("player", InventoryType[slot]) == link) then
+							table.insert(TeleportCloakList, id)
+							return
+						end
+					end
+				end
+			end
+		else
+			Print("/tc add <itemName>", "Usage")
+		end
+
+	elseif cmd == "warnings" then
+		TeleportCloakWarnings = not TeleportCloakWarnings
+		local status = TeleportCloakWarnings and "Enabled" or "Disabled"
+		Print(status, "Warnings")
+
+	else
+		DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99TeleportCloak Usage|r")
+		Print('/tc add <itemName>', "   Add Item", true)
+		Print('/tc warnings', "   Toggle Warnings", true)
+
+	end
+
+end
 
 local Saved = {}
 
@@ -117,37 +203,18 @@ local function RestoreItems()
 		if item and IsTeleportItem(item) then
 			if Saved[Slots[i]] and not InCombatLockdown() then
 				EquipItemByName(Saved[Slots[i]])
-			else
-				DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99TeleportCloak|r: |cffff0000WARNING|r: " .. GetItemInfo(item))
+			elseif TeleportCloakWarnings then
+				if i ~= INVSLOT_TABARD then
+					Print("|cffff0000Warning|r: " .. GetItemInfo(item))
+				end
 			end
 		end
 	end
 end
+
 TeleportCloak:RegisterEvent("ZONE_CHANGED")
 TeleportCloak.ZONE_CHANGED = RestoreItems
 TeleportCloak:RegisterEvent("ZONE_CHANGED_INDOORS")
 TeleportCloak.ZONE_CHANGED_INDOORS = RestoreItems
 TeleportCloak:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 TeleportCloak.ZONE_CHANGED_NEW_AREA = RestoreItems
-
-local function UpdateButton(button, list, slot)
-	for i=1, #list do
-		local startTime, _, enable = GetItemCooldown(list[i])
-		if startTime == 0 and enable == 1 then
-			button:SetAttribute("macrotext", string.format("/equipslot %s item:%s\n/use %s", slot, list[i], slot))
-			return
-		end
-	end
-	button:SetAttribute("macrotext", "")
-end
-
-TeleportCloak:RegisterEvent("BAG_UPDATE")
-function TeleportCloak:BAG_UPDATE()
-	if InCombatLockdown() then return end
-	UpdateButton(CloakButton, CloakList, INVSLOT_BACK)
-	UpdateButton(TrinketButton, TrinketList, INVSLOT_TRINKET1)
-	UpdateButton(RingButton, RingList, INVSLOT_FINGER1)
-	UpdateButton(FeetButton, FeetList, INVSLOT_FEET)
-	UpdateButton(NeckButton, NeckList, INVSLOT_NECK)
-	UpdateButton(TabardButton, TabardList, INVSLOT_TABARD)
-end
