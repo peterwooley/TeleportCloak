@@ -6,12 +6,12 @@ TeleportCloak:SetScript("OnEvent", function(self, event, ...) self[event](self, 
 
 local List = {
 	Cloak = {
+		65274, -- Cloak of Coordination (Horde)
+		65360, -- Cloak of Coordination (Alliance)
 		63206, -- Wrap of Unity (Alliance)
 		63207, -- Wrap of Unity (Horde)
 		63352, -- Shroud of Cooperation (Alliance)
 		63353, -- Shroud of Cooperation (Horde)
-		65274, -- Cloak of Coordination (Horde)
-		65360, -- Cloak of Coordination (Alliance)
 	},
 	Trinket = {
 		103678, -- Time-Lost Artifact
@@ -204,7 +204,7 @@ local function RestoreItems()
 			if Saved[Slots[i]] and not InCombatLockdown() then
 				EquipItemByName(Saved[Slots[i]])
 			elseif TeleportCloakWarnings then
-				if i ~= INVSLOT_TABARD then
+				if Slots[i] ~= INVSLOT_TABARD then
 					Print("|cffff0000Warning|r: " .. GetItemInfo(item))
 				end
 			end
