@@ -100,11 +100,14 @@ CloakButton:SetScript("PreClick", function(self)
 	TeleportCloakList = {}
 
 	for i=1, #list do
-		local startTime, duration, enable = GetItemCooldown(list[i])
-		if (startTime == 0 or duration - (GetTime() - startTime) <= 30) and enable == 1 then
-			local slot = select(9, GetItemInfo(list[i]))
-			self:SetAttribute("macrotext", string.format("/equipslot %i item:%i\n/use %i", InventoryType[slot], list[i], InventoryType[slot]))
-			return
+		local count = GetItemCount(list[i])
+		if count > 0 then
+			local startTime, duration, enable = GetItemCooldown(list[i])
+			if (startTime == 0 or duration - (GetTime() - startTime) <= 30) and enable == 1 then
+				local slot = select(9, GetItemInfo(list[i]))
+				self:SetAttribute("macrotext", string.format("/equipslot %i item:%i\n/use %i", InventoryType[slot], list[i], InventoryType[slot]))
+				return
+			end
 		end
 	end
 	self:SetAttribute("macrotext", "")
