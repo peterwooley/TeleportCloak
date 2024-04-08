@@ -1,5 +1,6 @@
 
 -- TeleportCloak by Jordon
+-- Reforged by Peter Wooley
 
 local TeleportCloak = CreateFrame("Frame")
 TeleportCloak:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
@@ -104,9 +105,9 @@ CloakButton:SetScript("PreClick", function(self)
 		local count = GetItemCount(list[i])
 		if count > 0 then
 			local startTime, duration, enable = GetItemCooldown(list[i])
-			if (startTime == 0 or duration - (GetTime() - startTime) <= 30) and enable == 1 then
+			if (startTime == 0 or duration - (GetTime() - startTime) <= 30) and enable == true then
 				local slot = select(9, GetItemInfo(list[i]))
-				self:SetAttribute("macrotext", string.format("/equipslot %i item:%i\n/use %i", InventoryType[slot], list[i], InventoryType[slot]))
+				self:SetAttribute("macrotext", string.format("/equip item:%i\n/use %i", list[i], InventoryType[slot]))
 				return
 			end
 		end
