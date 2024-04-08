@@ -47,6 +47,7 @@ local List = {
 		51560, -- Runed Band of the Kirin Tor
 		95050, -- Brassiest Knuckle (Horde)
 		95051, -- Brassiest Knuckle (Alliance)
+		139599, -- Empowered Ring of the Kirin Tor
 	},
 	Feet = {
 		50287, -- Boots of the Bay
