@@ -1,8 +1,8 @@
-## Interface: 70000
-## Title: TeleportCloak
+## Interface: 100206
+## Title: TeleportCloak Reforged
 ## Notes: Automatically equip previous cloak after using a teleport cloak
-## Version: @project-version@
-## Author: Jordon
+## Version: 2.4.1
+## Author: peterwooley
 ## SavedVariables: TeleportCloakWarnings
 ## DefaultState: Enabled
 
