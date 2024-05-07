@@ -73,6 +73,16 @@ local InventoryType = {
 	INVTYPE_TABARD = INVSLOT_TABARD,
 }
 
+local function Print(msg, subTitle, skipTitle)
+	local title = "|cff33ff99TeleportCloak Reforged|r"
+	if subTitle then
+		if not skipTitle then DEFAULT_CHAT_FRAME:AddMessage(title) end
+		DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99" .. subTitle .. "|r: " .. msg)
+	else
+		DEFAULT_CHAT_FRAME:AddMessage(title .. ": " .. msg)
+	end
+end
+
 local function IsTeleportItem(item)
 	for slot,_ in pairs(List) do
 		for j=1, #List[slot] do
@@ -87,9 +97,13 @@ local TeleportCloakList = {}
 TeleportCloakWarnings = TeleportCloakWarnings or true
 
 local CloakButton = CreateFrame("Button", "TeleportCloak", UIParent, "SecureActionButtonTemplate")
-CloakButton:SetAttribute("type", "macro");
+CloakButton:SetMouseClickEnabled(true)
+--CloakButton:RegisterForClicks("AnyUp");
+CloakButton:SetAttribute("pressAndHoldAction", true);
+CloakButton:SetAttribute("typerelease", "macro");
 
-CloakButton:SetScript("PreClick", function(self)
+CloakButton:SetScript("PreClick", function(self, button, down)
+	--Print("button " .. button .. " down " .. tostring(down))
 	if InCombatLockdown() then return end
 
 	local list
@@ -111,19 +125,15 @@ CloakButton:SetScript("PreClick", function(self)
 				return
 			end
 		end
+
+		if i == #list then
+			Print("All cloaks are on cooldown.")
+		end
 	end
 	self:SetAttribute("macrotext", "")
 end)
 
-local function Print(msg, subTitle, skipTitle)
-	local title = "|cff33ff99TeleportCloak|r"
-	if subTitle then
-		if not skipTitle then DEFAULT_CHAT_FRAME:AddMessage(title) end
-		DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99" .. subTitle .. "|r: " .. msg)
-	else
-		DEFAULT_CHAT_FRAME:AddMessage(title .. ": " .. msg)
-	end
-end
+
 
 local Slots = {
 	INVSLOT_NECK,
